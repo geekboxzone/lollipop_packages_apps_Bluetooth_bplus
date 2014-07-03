@@ -289,6 +289,12 @@ public class AdapterService extends Service {
         mRemoteDevices = new RemoteDevices(this);
         mAdapterProperties.init(mRemoteDevices);
 
+        if(mBondStateMachine != null) //Avoid resource leakage
+        {
+            mBondStateMachine.doQuit();
+            mBondStateMachine.cleanup();
+        }
+
         if (DBG) {debugLog("processStart(): Make Bond State Machine");}
         mBondStateMachine = BondStateMachine.make(this, mAdapterProperties, mRemoteDevices);
 
