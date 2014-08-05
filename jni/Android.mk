@@ -11,8 +11,8 @@ LOCAL_SRC_FILES:= \
     com_android_bluetooth_hdp.cpp \
     com_android_bluetooth_pan.cpp \
     com_android_bluetooth_gatt.cpp \
-    com_broadcom_fm_service.cpp \
-     
+    com_broadcom_fm_service.cpp
+
 LOCAL_C_INCLUDES += \
     $(JNI_H_INCLUDE) \
 

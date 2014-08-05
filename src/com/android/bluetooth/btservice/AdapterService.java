@@ -481,7 +481,7 @@ public class AdapterService extends Service {
     /**
      * The Binder implementation must be declared to be a static class, with
      * the AdapterService instance passed in the constructor. Furthermore,
-     * when the AdapterService shuts down, the reference to the AdapterService 
+     * when the AdapterService shuts down, the reference to the AdapterService
      * must be explicitly removed.
      *
      * Otherwise, a memory leak can occur from repeated starting/stopping the
@@ -1107,6 +1107,10 @@ public class AdapterService extends Service {
         if (deviceProp != null && deviceProp.getBondState() != BluetoothDevice.BOND_NONE) {
             return false;
         }
+
+        // Pairing is unreliable while scanning, so cancel discovery
+        // Note, remove this when native stack improves
+        cancelDiscoveryNative();
 
         Message msg = mBondStateMachine.obtainMessage(BondStateMachine.CREATE_BOND);
         msg.obj = device;

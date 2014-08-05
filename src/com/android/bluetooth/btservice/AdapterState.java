@@ -68,8 +68,8 @@ final class AdapterState extends StateMachine {
     static final int BEGIN_DISABLE_RADIO = 205;
 
     //TODO: tune me
-    private static final int ENABLE_TIMEOUT_DELAY = 8000;
-    private static final int DISABLE_TIMEOUT_DELAY = 8000;
+    private static final int ENABLE_TIMEOUT_DELAY = 20000;
+    private static final int DISABLE_TIMEOUT_DELAY = 20000;
     private static final int START_TIMEOUT_DELAY = 5000;
     private static final int STOP_TIMEOUT_DELAY = 5000;
     private static final int PROPERTY_OP_DELAY =2000;
@@ -189,12 +189,17 @@ final class AdapterState extends StateMachine {
         @Override
         public void enter() {
             infoLog("Entering On State");
+            AdapterService adapterService = mAdapterService;
+            if (adapterService == null) {
+                Log.e(TAG,"enter OnState after cleanup");
+                return;
+            }
             // If OnState entry is because of turning ON radio the auto connect
             // should not be started as it is BT ON specific behaviour.
             if (mPendingCommandState.isTurningOnRadio())
                 mPendingCommandState.setTurningOnRadio(false);
             else
-                mAdapterService.autoConnect();
+                adapterService.autoConnect();
         }
 
         @Override
@@ -309,7 +314,7 @@ final class AdapterState extends StateMachine {
             boolean isTurningOff = isTurningOff();
             boolean isTurningOnRadio= isTurningOnRadio();
             boolean isTurningOffRadio = isTurningOffRadio();
-			
+
             AdapterService adapterService = mAdapterService;
             AdapterProperties adapterProperties = mAdapterProperties;
             if ((adapterService == null) || (adapterProperties == null)) {
@@ -542,10 +547,17 @@ final class AdapterState extends StateMachine {
 
 
     private void notifyAdapterStateChange(int newState) {
-        int oldState = mAdapterProperties.getState();
-        mAdapterProperties.setState(newState);
+        AdapterService adapterService = mAdapterService;
+        AdapterProperties adapterProperties = mAdapterProperties;
+        if ((adapterService == null) || (adapterProperties == null)) {
+            Log.e(TAG,"notifyAdapterStateChange after cleanup:" + newState);
+            return;
+        }
+
+        int oldState = adapterProperties.getState();
+        adapterProperties.setState(newState);
         infoLog("Bluetooth adapter state changed: " + oldState + "-> " + newState);
-        mAdapterService.updateAdapterState(oldState, newState);
+        adapterService.updateAdapterState(oldState, newState);
     }
 
     private void notifyAdapterRadioStateChange(int newState) {
